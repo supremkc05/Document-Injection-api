@@ -1,0 +1,42 @@
+Sample Document for Testing
+
+This is a sample text document that can be used for testing the PALM backend system.
+
+Introduction to Artificial Intelligence
+
+Artificial Intelligence (AI) is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction.
+
+Machine Learning
+
+Machine learning is a subset of AI that provides systems the ability to automatically learn and improve from experience without being explicitly programmed. Machine learning focuses on the development of computer programs that can access data and use it to learn for themselves.
+
+Types of Machine Learning:
+1. Supervised Learning - Learning from labeled data
+2. Unsupervised Learning - Finding patterns in unlabeled data
+3. Reinforcement Learning - Learning through trial and error
+
+Deep Learning
+
+Deep learning is a subset of machine learning that uses neural networks with multiple layers. These neural networks attempt to simulate the behavior of the human brain, allowing it to "learn" from large amounts of data.
+
+Applications of AI
+
+AI is used in many applications including:
+- Natural Language Processing
+- Computer Vision
+- Robotics
+- Healthcare diagnostics
+- Financial trading
+- Autonomous vehicles
+
+The Future of AI
+
+The future of AI is promising, with potential applications in virtually every industry. As AI continues to evolve, it will become increasingly integrated into our daily lives, from smart homes to personalized medicine.
+
+Interview Scheduling
+
+For more information about AI or to schedule an interview, please contact us. We offer flexible scheduling options for consultations and discussions about AI implementation in your organization.
+
+Conclusion
+
+Artificial Intelligence is transforming the world as we know it. Understanding AI and its applications is crucial for anyone looking to stay relevant in the modern technological landscape.
