@@ -44,7 +44,7 @@ palm/
 
 * Python 3.10+
 
-## Quick Start (Local without Docker)
+## Quick Start
 
 ```
 cd palm
@@ -57,13 +57,7 @@ python -m uvicorn app.main:app --reload
 Access API documentation at:
 `http://localhost:8000/docs`
 
-## Quick Start (With Docker)
 
-```
-docker-compose up --build
-```
-
-This will start FastAPI, MySQL, Qdrant, and Redis.
 
 ## API Endpoints
 
