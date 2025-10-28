@@ -1,5 +1,4 @@
 from typing import List, Dict, Any, Optional, Tuple
-import openai
 
 from app.utils.embeddings import embedding_manager
 from app.utils.qdrant_manager import qdrant_manager
@@ -17,10 +16,6 @@ class CustomRAGService:
     def __init__(self):
         self.top_k = settings.TOP_K_RETRIEVAL
         self.max_context_length = settings.MAX_CONTEXT_LENGTH
-        self.use_openai = bool(settings.OPENAI_API_KEY)
-        
-        if self.use_openai:
-            openai.api_key = settings.OPENAI_API_KEY
 
     async def chat(
         self,
@@ -151,48 +146,48 @@ Answer:"""
 
     async def _generate_response(self, prompt: str) -> str:
         """
-        Generate response using LLM
+        Generate response based on retrieved context
         
         Args:
-            prompt: The formatted prompt
+            prompt: The formatted prompt with context
             
         Returns:
-            Generated response
+            Generated response based on context
         """
-        if self.use_openai:
-            return await self._generate_with_openai(prompt)
-        else:
-            return await self._generate_fallback(prompt)
-
-    async def _generate_with_openai(self, prompt: str) -> str:
-        """Generate response using OpenAI"""
-        try:
-            response = openai.chat.completions.create(
-                model=settings.OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": "You are a helpful AI assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=500
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            print(f"OpenAI API error: {e}")
-            return await self._generate_fallback(prompt)
-
-    async def _generate_fallback(self, prompt: str) -> str:
-        """
-        Fallback response generation without external LLM
+        # Extract the context and question from the prompt
+        lines = prompt.split('\n')
         
-        This is a simple fallback that echoes relevant context.
-        In production, you could use a local model here.
-        """
-        return (
-            "I've received your message and found some relevant information in the documents. "
-            "However, to provide detailed responses, please configure an OpenAI API key or integrate a local LLM. "
-            "The system has successfully retrieved context from the knowledge base."
-        )
+        # Find the context section
+        context_start = False
+        context_parts = []
+        question = ""
+        
+        for line in lines:
+            if line.startswith('[Context'):
+                context_start = True
+            elif line.startswith('Current Question:'):
+                question = line.replace('Current Question:', '').strip()
+                context_start = False
+            elif context_start and line.strip():
+                context_parts.append(line.strip())
+        
+        # If we have context, return it as the answer
+        if context_parts:
+            # Combine all context parts
+            full_context = ' '.join(context_parts)
+            
+            # Create a natural response
+            response = f"Based on the documents, here's what I found:\n\n{full_context[:1000]}"
+            
+            if len(full_context) > 1000:
+                response += "...\n\n(There's more information available in the documents)"
+            
+            return response
+        else:
+            return (
+                "I couldn't find relevant information in the uploaded documents to answer your question. "
+                "Please make sure you've uploaded documents related to your query, or try rephrasing your question."
+            )
 
     def clear_session(self, session_id: str) -> bool:
         """Clear conversation history for a session"""
