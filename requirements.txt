@@ -5,7 +5,7 @@ pydantic==2.12.3
 pydantic-settings==2.7.1
 email-validator
 
-# Database (lightweight)
+# Database
 sqlalchemy==2.0.44
 
 # Vector Database
@@ -14,7 +14,7 @@ qdrant-client==1.13.3
 # Conversation Memory
 redis==5.2.1
 
-# Embeddings (lightweight model)
+# Embeddings model
 sentence-transformers==3.3.1
 
 # Utilities
@@ -22,11 +22,3 @@ python-dotenv==1.0.1
 
 # Document Processing
 pypdf==5.1.0
-
-# Testing
-pytest==8.3.4
-pytest-asyncio==0.25.2
-httpx==0.28.1
-
-# HTTP client for testing
-requests==2.32.3 
