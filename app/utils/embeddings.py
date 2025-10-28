@@ -5,7 +5,7 @@ try:
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
-    print("⚠️  sentence-transformers not installed, using mock service")
+    print("sentence-transformers not installed, using mock service")
 
 from typing import List, Union
 
@@ -54,7 +54,12 @@ class EmbeddingManager:
         return self.dimension
 
 
-# Global instance - always use mock for local development
-print("🔤 Using Mock Embeddings (hash-based, instant startup)")
-from app.utils.mock_services import mock_embedding_manager
-embedding_manager = mock_embedding_manager
+# Global instance - use real embeddings
+if SENTENCE_TRANSFORMERS_AVAILABLE:
+    try:
+        embedding_manager = EmbeddingManager()
+    except Exception as e:
+        print(f"Embedding initialization failed: {e}")
+        raise
+else:
+    raise ImportError("sentence-transformers is required but not installed. Run: pip install sentence-transformers")

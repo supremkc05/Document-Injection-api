@@ -14,11 +14,12 @@ class ChunkingStrategy(ABC):
         pass
 
 
-class StrategyA(ChunkingStrategy):
+class FixedSizeChunking(ChunkingStrategy):
     """
-    Strategy A: Fixed-size chunking with overlap
+    Fixed-size chunking with overlap
     
     Splits text into chunks of fixed size with configurable overlap.
+    Ideal for consistent chunk sizes and maintaining context continuity.
     """
 
     def __init__(self, chunk_size: int = None, chunk_overlap: int = None):
@@ -72,12 +73,12 @@ class StrategyA(ChunkingStrategy):
         return text.strip()
 
 
-class StrategyB(ChunkingStrategy):
+class SemanticChunking(ChunkingStrategy):
     """
-    Strategy B: Semantic/Sliding chunking
+    Semantic chunking
     
     Splits text based on semantic boundaries (sentences/paragraphs) with sliding window.
-    Tries to respect natural language boundaries.
+    Tries to respect natural language boundaries for better readability and meaning preservation.
     """
 
     def __init__(self, target_chunk_size: int = None):
@@ -167,16 +168,16 @@ def get_chunking_strategy(
     Factory function to get the appropriate chunking strategy
     
     Args:
-        strategy_name: Name of the strategy ('strategy_a' or 'strategy_b')
-        chunk_size: Chunk size (for strategy A)
-        chunk_overlap: Chunk overlap (for strategy A)
+        strategy_name: Name of the strategy ('fixed_size' or 'semantic')
+        chunk_size: Chunk size (for fixed_size strategy)
+        chunk_overlap: Chunk overlap (for fixed_size strategy)
         
     Returns:
         ChunkingStrategy instance
     """
-    if strategy_name.lower() == "strategy_a":
-        return StrategyA(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    elif strategy_name.lower() == "strategy_b":
-        return StrategyB(target_chunk_size=chunk_size or settings.DEFAULT_CHUNK_SIZE)
+    if strategy_name.lower() == "fixed_size":
+        return FixedSizeChunking(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    elif strategy_name.lower() == "semantic":
+        return SemanticChunking(target_chunk_size=chunk_size or settings.DEFAULT_CHUNK_SIZE)
     else:
-        raise ValueError(f"Unknown chunking strategy: {strategy_name}")
+        raise ValueError(f"Unknown chunking strategy: {strategy_name}. Use 'fixed_size' or 'semantic'")

@@ -1,32 +1,74 @@
-# Redis Memory Manager - with fallback to mock service
+# Redis Memory Manager - with fallback to in-memory storage
+import json
+from typing import List, Dict, Any, Optional
+from collections import defaultdict
+
 try:
     import redis
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
-    print("⚠️  redis not installed, using mock service")
-
-import json
-from typing import List, Dict, Any, Optional
 
 if REDIS_AVAILABLE:
     from app.config import settings
+
+
+class InMemoryStore:
+    """Simple in-memory storage as fallback for Redis"""
+    
+    def __init__(self):
+        self.data: Dict[str, List[str]] = defaultdict(list)
+    
+    def rpush(self, key: str, value: str) -> None:
+        self.data[key].append(value)
+    
+    def lrange(self, key: str, start: int, end: int) -> List[str]:
+        items = self.data.get(key, [])
+        if end == -1:
+            return items[start:]
+        return items[start:end+1]
+    
+    def delete(self, key: str) -> int:
+        if key in self.data:
+            del self.data[key]
+            return 1
+        return 0
+    
+    def exists(self, key: str) -> int:
+        return 1 if key in self.data else 0
+    
+    def llen(self, key: str) -> int:
+        return len(self.data.get(key, []))
+    
+    def expire(self, key: str, seconds: int) -> None:
+        pass  # No-op for in-memory
 
 
 class RedisMemoryManager:
     """Manager for Redis-based conversation memory"""
 
     def __init__(self):
-        if not REDIS_AVAILABLE:
-            raise ImportError("redis not available")
+        if REDIS_AVAILABLE:
+            try:
+                self.client = redis.Redis(
+                    host=settings.REDIS_HOST,
+                    port=settings.REDIS_PORT,
+                    db=settings.REDIS_DB,
+                    password=settings.REDIS_PASSWORD,
+                    decode_responses=True
+                )
+                # Test connection
+                self.client.ping()
+                self.using_redis = True
+            except Exception as e:
+                print(f"Redis connection failed: {e}. Using in-memory storage.")
+                self.client = InMemoryStore()
+                self.using_redis = False
+        else:
+            print("Redis not installed. Using in-memory storage for conversation history.")
+            self.client = InMemoryStore()
+            self.using_redis = False
             
-        self.client = redis.Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            db=settings.REDIS_DB,
-            password=settings.REDIS_PASSWORD,
-            decode_responses=True
-        )
         self.default_ttl = 86400  # 24 hours in seconds
 
     def _get_session_key(self, session_id: str) -> str:
@@ -137,7 +179,5 @@ class RedisMemoryManager:
         return "\n".join(formatted)
 
 
-# Global instance - always use mock for local development
-print("💾 Using Mock Redis (in-memory conversation storage)")
-from app.utils.mock_services import mock_redis_memory
-redis_memory = mock_redis_memory
+# Global instance
+redis_memory = RedisMemoryManager()

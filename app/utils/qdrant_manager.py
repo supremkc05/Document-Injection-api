@@ -5,7 +5,7 @@ try:
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
-    print("⚠️  qdrant-client not installed, using mock service")
+    print("qdrant-client not installed, using mock service")
 
 from typing import List, Dict, Any, Optional
 import uuid
@@ -21,10 +21,28 @@ class QdrantManager:
         if not QDRANT_AVAILABLE:
             raise ImportError("qdrant-client not available")
             
-        self.client = QdrantClient(
-            host=settings.QDRANT_HOST,
-            port=settings.QDRANT_PORT
-        )
+        # Determine which connection method to use
+        if settings.QDRANT_URL and settings.QDRANT_API_KEY:
+            # Qdrant Cloud connection
+            print(f"Connecting to Qdrant Cloud: {settings.QDRANT_URL}")
+            self.client = QdrantClient(
+                url=settings.QDRANT_URL,
+                api_key=settings.QDRANT_API_KEY,
+                timeout=60,  # Increase timeout for cloud connections
+            )
+        elif settings.QDRANT_HOST != "localhost" or settings.QDRANT_PORT != 6333:
+            # Remote Qdrant server
+            print(f"Connecting to Qdrant server: {settings.QDRANT_HOST}:{settings.QDRANT_PORT}")
+            self.client = QdrantClient(
+                host=settings.QDRANT_HOST,
+                port=settings.QDRANT_PORT,
+                api_key=settings.QDRANT_API_KEY if settings.QDRANT_API_KEY else None,
+            )
+        else:
+            # Local file storage (no server needed)
+            print("Using Qdrant local file storage: ./qdrant_data")
+            self.client = QdrantClient(path="./qdrant_data")
+        
         self.collection_name = settings.QDRANT_COLLECTION_NAME
         self._ensure_collection()
 
@@ -145,8 +163,13 @@ class QdrantManager:
             return False
 
 
-# Global instance - always use mock for local development
-print("📦 Using Mock Qdrant (in-memory vector storage)")
-from app.utils.mock_services import mock_qdrant_manager
-qdrant_manager = mock_qdrant_manager
+# Global instance - use real Qdrant
+if QDRANT_AVAILABLE:
+    try:
+        qdrant_manager = QdrantManager()
+    except Exception as e:
+        print(f"Qdrant initialization failed: {e}")
+        raise
+else:
+    raise ImportError("qdrant-client is required but not installed. Run: pip install qdrant-client")
 
