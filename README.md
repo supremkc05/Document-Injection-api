@@ -44,12 +44,11 @@ QDRANT_URL=your-qdrant-cloud-url
 QDRANT_API_KEY=your-api-key
 ```
 
-Optional (Redis - will use in-memory if not available):
+Required for redis
 ```env
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
-
 
 
 ## API Endpoints
