@@ -25,6 +25,8 @@ uploads/
 # Database
 *.db
 *.sqlite3
+qdrant_data/
+qdrant_storage/
 
 # Logs
 *.log
@@ -42,3 +44,7 @@ start_server.bat
 REVIEW_NOTES.md
 
 run_server.py
+test_chat_api.py
+test_redis.py
+view_qdrant_storage.py
+view_redis_data.py
