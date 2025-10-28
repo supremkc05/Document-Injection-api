@@ -3,13 +3,6 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    # MySQL Configuration
-    MYSQL_HOST: str = "localhost"
-    MYSQL_PORT: int = 3306
-    MYSQL_USER: str = "palm_user"
-    MYSQL_PASSWORD: str = "palm_password"
-    MYSQL_DATABASE: str = "palm_db"
-
     # Redis Configuration
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
@@ -17,13 +10,11 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: Optional[str] = None
 
     # Qdrant Configuration
+    QDRANT_URL: Optional[str] = None
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION_NAME: str = "documents"
-
-    # OpenAI Configuration
-    OPENAI_API_KEY: Optional[str] = None
-    OPENAI_MODEL: str = "gpt-3.5-turbo"
+    QDRANT_API_KEY: Optional[str] = None
 
     # Embedding Configuration
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
@@ -41,10 +32,6 @@ class Settings(BaseSettings):
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
     DEBUG: bool = False
-
-    @property
-    def database_url(self) -> str:
-        return f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}"
 
     class Config:
         env_file = ".env"

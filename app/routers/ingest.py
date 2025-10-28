@@ -4,10 +4,7 @@ from typing import Optional
 import io
 
 from app.database import get_db
-from app.schemas import (
-    DocumentIngestResponse,
-    ChunkingStrategy
-)
+from app.schemas import (DocumentIngestResponse, ChunkingStrategy)
 from app.services.document_service import DocumentIngestionService
 
 router = APIRouter(prefix="/api", tags=["Document Ingestion"])
@@ -17,16 +14,16 @@ router = APIRouter(prefix="/api", tags=["Document Ingestion"])
 async def ingest_document(
     file: UploadFile = File(..., description="PDF or TXT file to ingest"),
     chunking_strategy: ChunkingStrategy = Form(
-        default=ChunkingStrategy.STRATEGY_A,
+        default=ChunkingStrategy.FIXED_SIZE,
         description="Chunking strategy to use"
     ),
     chunk_size: Optional[int] = Form(
         default=None,
-        description="Chunk size (for strategy A)"
+        description="Chunk size (for fixed_size strategy)"
     ),
     chunk_overlap: Optional[int] = Form(
         default=None,
-        description="Chunk overlap (for strategy A)"
+        description="Chunk overlap (for fixed_size strategy)"
     ),
     db: Session = Depends(get_db)
 ):
@@ -34,9 +31,9 @@ async def ingest_document(
     Ingest a document (PDF or TXT) into the system
     
     - **file**: The document file to upload (.pdf or .txt)
-    - **chunking_strategy**: Choose between 'strategy_a' (fixed-size) or 'strategy_b' (semantic)
-    - **chunk_size**: Optional chunk size for strategy A
-    - **chunk_overlap**: Optional chunk overlap for strategy A
+    - **chunking_strategy**: Choose between 'fixed_size' (fixed-size with overlap) or 'semantic' (sentence-aware)
+    - **chunk_size**: Optional chunk size for fixed_size strategy
+    - **chunk_overlap**: Optional chunk overlap for fixed_size strategy
     
     Returns:
     - **document_id**: Unique identifier for the document

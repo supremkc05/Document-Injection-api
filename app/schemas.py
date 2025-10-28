@@ -5,13 +5,13 @@ from enum import Enum
 
 
 class ChunkingStrategy(str, Enum):
-    STRATEGY_A = "strategy_a"  # Fixed-size chunks
-    STRATEGY_B = "strategy_b"  # Semantic/sliding chunks
+    FIXED_SIZE = "fixed_size"  # Fixed-size chunks with overlap
+    SEMANTIC = "semantic"  # Semantic/sentence-based chunks
 
 
 class DocumentIngestRequest(BaseModel):
     chunking_strategy: ChunkingStrategy = Field(
-        default=ChunkingStrategy.STRATEGY_A,
+        default=ChunkingStrategy.FIXED_SIZE,
         description="Chunking strategy to use"
     )
     chunk_size: Optional[int] = Field(

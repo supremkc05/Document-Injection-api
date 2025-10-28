@@ -31,7 +31,6 @@ class Booking(Base):
 
 
 # Database engine and session - Using SQLite
-print("📊 Using SQLite database: palm_local.db")
 engine = create_engine(
     "sqlite:///./palm_local.db",
     connect_args={"check_same_thread": False}
