@@ -1,83 +1,68 @@
-# PALM Backend – Document Ingestion and Conversational RAG
+# Document Injection API
 
-A FastAPI-based backend for document ingestion, vector storage, and conversational Retrieval-Augmented Generation (RAG), including an interview booking system.
+FastAPI backend for document ingestion and conversational RAG with vector storage.
 
 ## Features
 
-* Document ingestion API for PDF/TXT files with two chunking strategies
-* Conversational RAG API with session-based memory
-* Interview booking CRUD API
-* Custom RAG pipeline (no LangChain chains)
-* Vector storage using Qdrant 
-* Redis-based memory
-* SQLite for metadata storage
-* Modular layered architecture (Routers → Services → Repositories → Storage)
+* Document ingestion (PDF/TXT) with smart chunking
+* Conversational RAG with session memory
+* Interview booking system
+* Standalone system (no external LLM required)
+* Qdrant Cloud vector storage
+* Redis memory with in-memory fallback
 
 ## Tech Stack
 
-| Component      | Technology              |
-| -------------- | ----------------------- |
-| Framework      | FastAPI                 |
-| Database       | SQLite                  |
-| Vector Store   | Qdrant                  |
-| Cache/Memory   | Redis                   |
-| Embeddings     | Mock embedding service  |
-| PDF Processing | PyPDF                   |
-
-## Project Structure
-
-```
-palm/
-  app/
-    main.py
-    routers/ (ingest, chat, bookings)
-    services/ (business logic)
-    repositories/ (database access)
-    utils/ (chunking, qdrant, redis, embeddings)
-  tests/
-  requirements.txt
-  docker-compose.yml
-  README.md
-```
-
-## Prerequisites
-
-* Python 3.10+
+**FastAPI** · **SQLite** · **Qdrant Cloud** · **Redis** · **sentence-transformers**
 
 ## Quick Start
 
-```
-cd palm
-python -m venv venv
-source venv/bin/activate   # or .\venv\Scripts\activate on Windows
+```bash
+# Clone and setup
+git clone https://github.com/supremkc05/Document-Injection-api.git
+cd Document-Injection-api
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-python -m uvicorn app.main:app --reload
+
+# Configure (copy .env.example to .env and add your Qdrant credentials)
+cp .env.example .env
+
+# Run server
+python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Access API documentation at:
-`http://localhost:8000/docs`
+**API Docs:** http://localhost:8000/docs
+
+## Configuration
+
+Required in `.env`:
+```env
+QDRANT_URL=your-qdrant-cloud-url
+QDRANT_API_KEY=your-api-key
+```
+
+Optional (Redis - will use in-memory if not available):
+```env
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
 
 
 
 ## API Endpoints
 
-| Endpoint                       | Method      | Description                          |
-| ------------------------------ | ----------- | ------------------------------------ |
-| /api/ingest                    | POST        | Upload and chunk a document          |
-| /api/chat                      | POST        | Send user query and get RAG response |
-| /api/chat/{session_id}/history | GET         | Get chat history                     |
-| /api/chat/{session_id}         | DELETE      | Clear session                        |
-| /api/bookings                  | POST, GET   | Create or list bookings              |
-| /api/bookings/{id}             | GET, DELETE | Retrieve or delete booking           |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ingest` | POST | Upload document (PDF/TXT) |
+| `/api/chat` | POST | Query with RAG |
+| `/api/chat/{session_id}/history` | GET | Get chat history |
+| `/api/bookings` | POST/GET | Manage bookings |
 
+## Chunking Strategies
 
-## Notes
-
-* No LangChain chains or external frameworks
-* Two chunking strategies: fixed and semantic
-
-## To run the api 
-`.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8888`
-
----
+- **`fixed_size`**: Fixed chunks with overlap (default: 500 chars)
+- **`semantic`**: Sentence-based semantic chunks (min: 200 chars)
 
